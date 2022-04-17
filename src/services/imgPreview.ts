@@ -18,14 +18,14 @@ export async function imgPreview(
   const canvas = document.createElement('canvas')
   canvasPreview(image, canvas, crop)
 
-//   const blob = await toBlob(canvas)
-//   if (previewUrl) {
-//     URL.revokeObjectURL(previewUrl)
-//   }
+  const blob = await toBlob(canvas)
+  if (previewUrl) {
+    URL.revokeObjectURL(previewUrl)
+  }
 
-//   previewUrl = URL.createObjectURL(blob)
-//   return previewUrl
+  previewUrl = URL.createObjectURL(blob)
+  return previewUrl
 
- const base64Image = canvas.toDataURL("image/jpeg");
-  return base64Image;
+//  const base64Image = canvas.toDataURL("image/jpeg");
+//   return base64Image;
 }
