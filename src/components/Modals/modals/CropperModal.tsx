@@ -1,20 +1,27 @@
 import React from "react";
 import { PixelCrop } from "react-image-crop";
-import { imgPreview, useDebounceEffect } from "../../../utils";
+import {
+  CropImageContext,
+  CropImageContextType,
+} from "../../../modules/CropImage";
 import Cropper from "../../Cropper/Cropper";
 import Modal from "../Modal";
 
 interface CropperProps {
-  isOpen: boolean;
-  setIsOpen: any;
   img: string;
-  setCropped: any;
-  setImgSrc: any;
+  setCropped: React.Dispatch<React.SetStateAction<boolean>>;
+  setImgSrc: React.Dispatch<React.SetStateAction<string>>;
 }
 
-export default function CropperModal(props: CropperProps) {
-  const { setIsOpen, isOpen, img, setCropped, setImgSrc } = props;
-  const [croppedImage, setCroppedImage] = React.useState("");
+export default function CropperModal({
+  img,
+  setCropped,
+  setImgSrc,
+}: CropperProps) {
+  const { modalIsOpen: isOpen, setIsOpen } = React.useContext(
+    CropImageContext
+  ) as CropImageContextType;
+  const [croppedImage, setCroppedImage] = React.useState<string>("");
   const imgRef = React.useRef<HTMLImageElement>(null);
   const [completedCrop, setCompletedCrop] = React.useState<PixelCrop>();
 
@@ -29,17 +36,6 @@ export default function CropperModal(props: CropperProps) {
     setIsOpen((v: boolean) => (v = !v));
   };
 
-  useDebounceEffect(
-    async () => {
-      if (completedCrop?.width && completedCrop?.height && imgRef.current) {
-        const url = await imgPreview(imgRef.current, completedCrop);
-        setCroppedImage(url);
-      }
-    },
-    0,
-    [completedCrop]
-  );
-
   return (
     <Modal isOpen={isOpen} onRequestClose={closeModal}>
       <div>
@@ -47,9 +43,11 @@ export default function CropperModal(props: CropperProps) {
           img={img}
           imgRef={imgRef}
           setCompletedCrop={setCompletedCrop}
+          completedCrop={completedCrop}
+          setCroppedImage={setCroppedImage}
         />
         {/* Image to be shown on crop change */}
-        {/* <img src={croppedImage} /> */}
+        <img src={croppedImage} />
         <button onClick={closeModal}>close</button>
         <button onClick={submit}>submit</button>
       </div>

@@ -1,11 +1,19 @@
 import React from "react";
 import { CropperModal } from "../components";
 
+export type CropImageContextType = {
+  modalIsOpen: boolean;
+  setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
+export const CropImageContext =
+  React.createContext<CropImageContextType | null>(null);
+const { Provider } = CropImageContext;
+
 const CropImage = () => {
   const [modalIsOpen, setIsOpen] = React.useState<boolean>(false);
   const [imgSrc, setImgSrc] = React.useState<string>("");
-  const [cropped, setCropped] = React.useState(false);
-  const fileRef = React.useRef<any>("");
+  const [cropped, setCropped] = React.useState<boolean>(false);
 
   const openModal = () => {
     setIsOpen((v) => (v = !v));
@@ -30,12 +38,7 @@ const CropImage = () => {
   return (
     <div className="App">
       <h1>Test</h1>
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        onChange={handleChange}
-      />
+      <input type="file" accept="image/*" onChange={handleChange} />
       {cropped && (
         <>
           <img
@@ -46,13 +49,13 @@ const CropImage = () => {
           <button onClick={cancelImage}>cancel</button>
         </>
       )}
-      <CropperModal
-        isOpen={modalIsOpen}
-        setCropped={setCropped}
-        setIsOpen={setIsOpen}
-        setImgSrc={setImgSrc}
-        img={imgSrc}
-      />
+      <Provider value={{ modalIsOpen, setIsOpen }}>
+        <CropperModal
+          setCropped={setCropped}
+          setImgSrc={setImgSrc}
+          img={imgSrc}
+        />
+      </Provider>
     </div>
   );
 };
