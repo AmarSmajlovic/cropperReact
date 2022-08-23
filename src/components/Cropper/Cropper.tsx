@@ -6,11 +6,14 @@ import ReactCrop, {
   PixelCrop,
 } from "react-image-crop";
 import "react-image-crop/dist/ReactCrop.css";
+import { imgPreview, useDebounceEffect } from "../../utils";
 
 interface Props {
   img: string;
   imgRef: RefObject<HTMLImageElement>;
   setCompletedCrop: React.Dispatch<React.SetStateAction<PixelCrop | undefined>>;
+  completedCrop?: PixelCrop;
+  setCroppedImage: React.Dispatch<React.SetStateAction<string>>;
 }
 
 function centerAspectCrop(
@@ -34,13 +37,30 @@ function centerAspectCrop(
   );
 }
 
-const Cropper = ({ img, imgRef, setCompletedCrop }: Props) => {
+const Cropper = ({
+  img,
+  imgRef,
+  setCompletedCrop,
+  completedCrop,
+  setCroppedImage,
+}: Props) => {
   const [crop, setCrop] = React.useState<Crop>();
 
   function onImageLoad(e: React.SyntheticEvent<HTMLImageElement>) {
     const { width, height } = e.currentTarget;
     setCrop(centerAspectCrop(width, height, width / height));
   }
+
+  useDebounceEffect(
+    async () => {
+      if (completedCrop?.width && completedCrop?.height && imgRef.current) {
+        const url = await imgPreview(imgRef.current, completedCrop);
+        setCroppedImage(url);
+      }
+    },
+    0,
+    [completedCrop]
+  );
 
   return (
     <ReactCrop
